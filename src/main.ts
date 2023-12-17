@@ -10,7 +10,7 @@ const start = async () => {
   try {
     const PORT = process.env.PORT || 5001;
     const app = await NestFactory.create(AppModule);
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     app.enableCors();
     await app.listen(PORT, () => console.log(`Server started on PORT ${PORT}`));
   } catch (error) {

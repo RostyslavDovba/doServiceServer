@@ -3,7 +3,7 @@ import { TodoController } from './todo.controller';
 import { TodoService } from './todo.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Todo, TodoSchema } from './schemas/createTodo.schema';
-import { User, UserSchema } from 'src/user/schemas/createUser.schema';
+import { User, UserSchema } from '@app/user/schemas/user.schema';
 import { UserService } from 'src/user/user.service';
 import { UserModule } from 'src/user/User.module';
 

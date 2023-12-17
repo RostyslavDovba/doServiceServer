@@ -2,14 +2,15 @@ import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 
-import { TrackModule } from './track/track.module';
-import { FileModule } from './file/file.module';
-import { ResumeModule } from './resume/resume.module';
-import { AppController } from './app.controller';
-import { UserModule } from './user/User.module';
-import { TodoModule } from './todo/todo.module';
+import { TrackModule } from '@app/track/track.module';
+import { FileModule } from '@app/file/file.module';
+import { ResumeModule } from '@app/resume/resume.module';
+import { AppController } from '@app/app.controller';
+import { UserModule } from '@app/user/User.module';
+import { TodoModule } from '@app/todo/todo.module';
 import { AuthMiddleware } from '@app/user/middlewares/auth.middleware';
-import { JwtModule } from '@nestjs/jwt';
+import { ProfileModule } from '@app/profile/profile.module';
+import { JwtGlobalModule } from './shared/jwt.module';
 
 @Module({
   imports: [
@@ -20,14 +21,15 @@ import { JwtModule } from '@nestjs/jwt';
       isGlobal: true,
       envFilePath: ['.env', '.env.dev'],
     }),
-    JwtModule.registerAsync({
-      useFactory: async () => {
-        return {
-          secret: process.env.JWT_SECRET,
-          signOptions: { expiresIn: '1d' },
-        };
-      },
-    }),
+    JwtGlobalModule,
+    // JwtModule.registerAsync({
+    //   useFactory: async () => {
+    //     return {
+    //       secret: process.env.JWT_SECRET,
+    //       // signOptions: { expiresIn: '1d' },
+    //     };
+    //   },
+    // }),
     MongooseModule.forRoot(
       `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ovbrcch.mongodb.net/pet-project?retryWrites=true&w=majority`,
     ),
@@ -36,6 +38,7 @@ import { JwtModule } from '@nestjs/jwt';
     TrackModule,
     FileModule,
     ResumeModule,
+    ProfileModule,
   ],
   controllers: [AppController],
 })

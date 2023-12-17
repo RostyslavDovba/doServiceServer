@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 
 import { LoginUserDto } from '@app/user/dto/login-user.dto';
-import { User, UserDocument } from '@app/user/schemas/createUser.schema';
+import { User, UserDocument } from '@app/user/schemas/user.schema';
 import { UserResponse, UserType } from '@app/user/types/user.type';
 
 @Injectable()
@@ -15,13 +15,15 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  async createUser(userDto) {
+  async createUser(userDto): Promise<UserType> {
     const user = new this.userModel(userDto);
     return user.save();
   }
 
   async loginUser(userDto: LoginUserDto) {
-    const user = await this.userModel.findOne({ email: userDto.email });
+    const user = await this.userModel
+      .findOne({ email: userDto.email })
+      .select('+password');
     if (!user) {
       throw new HttpException('There is no such user', HttpStatus.NOT_FOUND);
     }
@@ -36,7 +38,10 @@ export class UserService {
   }
 
   async findUserById(id: string): Promise<UserType> {
-    return await this.userModel.findById(id);
+    return await this.userModel
+      .findById(id)
+      // .select('+password')
+      .populate('resume');
   }
 
   async getAllUsers() {
@@ -51,13 +56,20 @@ export class UserService {
     // // return [exR, users];
     // return users;
 
-    const users = await this.userModel.find().populate('todos');
+    // const users = await this.userModel.find().populate('todos');
+    const users = await this.userModel.find().populate('resume');
+    // console.log(
+    //   '🚀 ~ file: user.service.ts:55 ~ UserService ~ getAllUsers ~ users:',
+    //   users,
+    // );
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(users);
-      }, 2000); // Delay of 2 seconds
-    });
+    return users;
+
+    // return new Promise((resolve) => {
+    //   setTimeout(() => {
+    //     resolve(users);
+    //   }, 2000); // Delay of 2 seconds
+    // });
   }
 
   private generateToken(user: UserType): string {
@@ -70,13 +82,14 @@ export class UserService {
   }
 
   buildUserResponse(user: UserType): UserResponse {
-    const { username, email, id } = user;
+    const { username, email, id, resume } = user;
     const token = this.generateToken(user);
     return {
       id,
       username,
       email,
       token,
+      resume,
     };
   }
 }

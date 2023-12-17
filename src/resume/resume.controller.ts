@@ -1,22 +1,72 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ResumeService } from './resume.service';
-import { CreateResumeDto } from './dto/create-resume.dto';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ResumeService } from '@app/resume/resume.service';
+import { CreateResumeDto } from '@app/resume/dto/resume-create.dto';
+import { AuthGuard } from '@app/user/guard/auth.guard';
+import { User } from '@app/user/decorators/user.decorator';
+import { UpdateResumeDto } from './dto/resume-update.dto';
 
-@Controller('/resume')
+@Controller('resume')
 export class ResumeController {
   constructor(private resumeServices: ResumeService) {}
 
   @Post()
-  createResume(@Body() dto: CreateResumeDto) {
-    console.log("🚀 ~ file: resume.controller.ts:11 ~ ResumeController ~ createResume ~ dto:", dto)
-    return this.resumeServices.createResume(dto);
+  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
+  async createResume(
+    @Body() createResumeDto: CreateResumeDto,
+    @User('id') currentUserId: string,
+  ) {
+    const resume = await this.resumeServices.createResume(
+      createResumeDto,
+      currentUserId,
+    );
+
+    return resume;
   }
 
-  @Get()
-  getOneResume() {
-    return 'some data';
+  @Put()
+  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
+  async updateResume(
+    @Body() updateResumeDto: UpdateResumeDto,
+    @User('id') currentUserId: string,
+  ) {
+    const resume = await this.resumeServices.updateResume(
+      updateResumeDto,
+      currentUserId,
+    );
+
+    return resume;
   }
 
-  @Get()
-  getAllResumes() {}
+  // @Delete('create')
+  // @UseGuards(AuthGuard)
+  // async deleteResume(
+  //   @Body() createResumeDto: CreateResumeDto,
+  //   @User('id') currentUserId: string,
+  // ) {
+  //   const resume = await this.resumeServices.createResume(
+  //     createResumeDto,
+  //     currentUserId,
+  //   );
+
+  //   return resume;
+  // }
+
+  // @Get(':id')
+  // async getOneResume(@Param('id') paramId) {
+  //   return await this.resumeServices.getResume(paramId);
+  // }
+
+  // @Get()
+  // getProfileResume() {}
 }

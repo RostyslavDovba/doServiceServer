@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Todo, TodoDocument } from './schemas/createTodo.schema';
 import { Model } from 'mongoose';
-import { User, UserDocument } from 'src/user/schemas/createUser.schema';
+import { User, UserDocument } from '@app/user/schemas/user.schema';
 
 @Injectable()
 export class TodoService {
